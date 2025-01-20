@@ -6,11 +6,11 @@ export const runtime = "nodejs"
 export async function POST(request: Request) {
   try {
     const data = await request.json()
-    console.log("Received report data:", data)
+    console.log("Received report data:", JSON.stringify(data, null, 2))
 
     // Validate required fields
     if (!data.category || !data.title || !data.description || !data.location || !data.dateOfIncident) {
-      console.error("Missing required fields:", data)
+      console.error("Missing required fields:", JSON.stringify(data, null, 2))
       return NextResponse.json(
         {
           success: false,
@@ -55,6 +55,7 @@ export async function POST(request: Request) {
     }
 
     try {
+      console.log("Attempting to submit report to database...")
       const result = await submitReport(data)
       console.log("Report submitted successfully:", result)
       return NextResponse.json(result)
@@ -64,6 +65,7 @@ export async function POST(request: Request) {
         {
           success: false,
           error: "Failed to save report to database",
+          details: dbError instanceof Error ? dbError.message : String(dbError),
         },
         { status: 500 },
       )
@@ -74,6 +76,7 @@ export async function POST(request: Request) {
       {
         success: false,
         error: "Internal server error",
+        details: error instanceof Error ? error.message : String(error),
       },
       { status: 500 },
     )
