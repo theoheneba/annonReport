@@ -1,28 +1,43 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
+import { verifySession } from "./lib/auth"
 
-export function middleware(request: NextRequest) {
-  // Remove all identifying headers
-  const headers = new Headers(request.headers)
-  headers.delete("x-forwarded-for")
-  headers.delete("x-real-ip")
+export async function middleware(request: NextRequest) {
+  // Remove identifying headers for anonymous reports
+  if (request.nextUrl.pathname.startsWith("/api/submit")) {
+    const headers = new Headers(request.headers)
+    headers.delete("x-forwarded-for")
+    headers.delete("x-real-ip")
 
-  // Create response with sanitized headers
-  const response = NextResponse.next({
-    request: {
-      headers,
-    },
-  })
+    const response = NextResponse.next({
+      request: {
+        headers,
+      },
+    })
 
-  // Remove tracking headers from response
-  response.headers.delete("x-powered-by")
-  response.headers.set("Referrer-Policy", "no-referrer")
-  response.headers.set("X-Content-Type-Options", "nosniff")
+    response.headers.delete("x-powered-by")
+    response.headers.set("Referrer-Policy", "no-referrer")
+    response.headers.set("X-Content-Type-Options", "nosniff")
 
-  return response
+    return response
+  }
+
+  // Protect admin routes
+  if (request.nextUrl.pathname.startsWith("/admin")) {
+    if (request.nextUrl.pathname === "/admin/login") {
+      return NextResponse.next()
+    }
+
+    const session = await verifySession(request)
+    if (!session) {
+      return NextResponse.redirect(new URL("/admin/login", request.url))
+    }
+  }
+
+  return NextResponse.next()
 }
 
 export const config = {
-  matcher: "/api/:path*",
+  matcher: ["/admin/:path*", "/api/submit"],
 }
 

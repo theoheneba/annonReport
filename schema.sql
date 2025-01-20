@@ -1,19 +1,26 @@
 CREATE TABLE reports (
-    id VARCHAR(36) PRIMARY KEY,
+    id UUID PRIMARY KEY,
     category VARCHAR(100) NOT NULL,
     description TEXT NOT NULL,
     location VARCHAR(255),
-    date_submitted DATETIME DEFAULT CURRENT_TIMESTAMP,
-    status ENUM('pending', 'investigating', 'resolved', 'closed') DEFAULT 'pending',
+    date_submitted TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(20) DEFAULT 'pending',
     tracking_id VARCHAR(12) UNIQUE NOT NULL
 );
 
 CREATE TABLE updates (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    report_id VARCHAR(36),
-    status ENUM('pending', 'investigating', 'resolved', 'closed'),
+    id SERIAL PRIMARY KEY,
+    report_id UUID,
+    status VARCHAR(20),
     message TEXT,
-    date_added DATETIME DEFAULT CURRENT_TIMESTAMP,
+    date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (report_id) REFERENCES reports(id)
+);
+
+CREATE TABLE admins (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

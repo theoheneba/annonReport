@@ -5,20 +5,17 @@ import crypto from "crypto"
 export const runtime = "nodejs"
 
 export async function POST(request: Request) {
-  // Generate a random identifier instead of using any user data
   const anonymousId = crypto.randomBytes(32).toString("hex")
 
   try {
     const data = await request.json()
     const result = await submitReport({
       ...data,
-      anonymousId, // Store only the anonymous ID
-      // Explicitly avoid storing any identifying information
+      anonymousId,
       submittedAt: new Date().toISOString(),
     })
 
     if (result.success) {
-      // Return only the tracking ID
       return NextResponse.json({
         success: true,
         trackingId: result.trackingId,
