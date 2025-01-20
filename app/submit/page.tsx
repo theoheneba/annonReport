@@ -86,7 +86,7 @@ export default function SubmitReport() {
         attachments: uploadedFiles,
       }
 
-      console.log("Submitting report data:", reportData)
+      console.log("Submitting report data:", JSON.stringify(reportData, null, 2))
       const response = await fetch("/api/submit", {
         method: "POST",
         headers: {
@@ -95,12 +95,11 @@ export default function SubmitReport() {
         body: JSON.stringify(reportData),
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || `Failed to submit report. Status: ${response.status}`)
-      }
-
       const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || `Failed to submit report. Status: ${response.status}`)
+      }
 
       if (!data.success) {
         throw new Error(data.error || "Failed to submit report")
@@ -118,51 +117,51 @@ export default function SubmitReport() {
   }
 
   return (
-    <div className="container mx-auto py-10">
-      <h1 className="text-3xl font-bold mb-6">Submit a Report</h1>
-      <div className="max-w-2xl mx-auto">
-        {currentStep === 0 && <CategoryStep selectedCategory={category} onSelectCategory={setCategory} />}
-        {currentStep === 1 && (
-          <DetailsStep
-            title={title}
-            setTitle={setTitle}
-            description={description}
-            setDescription={setDescription}
-            location={location}
-            setLocation={setLocation}
-            date={date}
-            setDate={setDate}
-          />
-        )}
-        {currentStep === 2 && <EvidenceStep files={files} setFiles={setFiles} />}
-        {currentStep === 3 && (
-          <ReviewStep
-            category={category || ""}
-            title={title}
-            description={description}
-            location={location}
-            date={date}
-            files={files}
-          />
-        )}
-        <div className="mt-6 flex justify-between">
-          {currentStep > 0 && (
-            <Button onClick={handlePrevious} variant="outline">
-              Previous
-            </Button>
+      <div className="container mx-auto py-10">
+        <h1 className="text-3xl font-bold mb-6">Submit a Report</h1>
+        <div className="max-w-2xl mx-auto">
+          {currentStep === 0 && <CategoryStep selectedCategory={category} onSelectCategory={setCategory} />}
+          {currentStep === 1 && (
+              <DetailsStep
+                  title={title}
+                  setTitle={setTitle}
+                  description={description}
+                  setDescription={setDescription}
+                  location={location}
+                  setLocation={setLocation}
+                  date={date}
+                  setDate={setDate}
+              />
           )}
-          {currentStep < formSteps.length - 1 ? (
-            <Button onClick={handleNext} className="ml-auto">
-              Next
-            </Button>
-          ) : (
-            <Button onClick={onSubmit} disabled={loading} className="ml-auto">
-              {loading ? "Submitting..." : "Submit Report"}
-            </Button>
+          {currentStep === 2 && <EvidenceStep files={files} setFiles={setFiles} />}
+          {currentStep === 3 && (
+              <ReviewStep
+                  category={category || ""}
+                  title={title}
+                  description={description}
+                  location={location}
+                  date={date}
+                  files={files}
+              />
           )}
+          <div className="mt-6 flex justify-between">
+            {currentStep > 0 && (
+                <Button onClick={handlePrevious} variant="outline">
+                  Previous
+                </Button>
+            )}
+            {currentStep < formSteps.length - 1 ? (
+                <Button onClick={handleNext} className="ml-auto">
+                  Next
+                </Button>
+            ) : (
+                <Button onClick={onSubmit} disabled={loading} className="ml-auto">
+                  {loading ? "Submitting..." : "Submit Report"}
+                </Button>
+            )}
+          </div>
         </div>
       </div>
-    </div>
   )
 }
 
