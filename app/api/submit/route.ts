@@ -20,6 +20,27 @@ export async function POST(request: Request) {
       )
     }
 
+    // Validate category
+    const validCategories = [
+      "Corruption",
+      "Fraud",
+      "Misconduct",
+      "Harassment",
+      "Discrimination",
+      "Environmental",
+      "Other",
+    ]
+    if (!validCategories.includes(data.category)) {
+      console.error("Invalid category:", data.category)
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Invalid category",
+        },
+        { status: 400 },
+      )
+    }
+
     // Validate date format
     const date = new Date(data.dateOfIncident)
     if (isNaN(date.getTime())) {

@@ -1,7 +1,8 @@
--- Enable UUID extension if not already enabled
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- Drop existing enum and table if they exist
+DROP TABLE IF EXISTS reports CASCADE;
+DROP TYPE IF EXISTS report_category CASCADE;
 
--- Create an enum for report categories
+-- Create an enum for report categories (lowercase)
 CREATE TYPE report_category AS ENUM (
   'corruption',
   'fraud',

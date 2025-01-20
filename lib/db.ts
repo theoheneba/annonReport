@@ -33,7 +33,7 @@ export async function submitReport(data: {
     // Insert the report
     const reportResult = await client.query(
       `INSERT INTO reports (category, title, description, location, date_of_incident, tracking_id, status)
-       VALUES ($1, $2, $3, $4, $5, $6, 'pending')
+       VALUES ($1::report_category, $2, $3, $4, $5, $6, 'pending')
        RETURNING id`,
       [data.category, data.title, data.description, data.location, data.dateOfIncident, trackingId],
     )
