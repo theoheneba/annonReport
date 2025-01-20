@@ -1,19 +1,3 @@
-import { Pool } from "pg"
-
-let pool: Pool | null = null
-
-export function getPool() {
-  if (!pool) {
-    pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
-      ssl: {
-        rejectUnauthorized: false,
-      },
-    })
-  }
-  return pool
-}
-
 export async function submitReport(data: {
   category: string
   title: string
@@ -34,12 +18,12 @@ export async function submitReport(data: {
 
     console.log("Inserting report with tracking ID:", trackingId)
 
-    // Insert the report (ensure category is lowercase)
+    // Insert the report (ensure category is lowercase and cast to report_category)
     const reportResult = await client.query(
-        `INSERT INTO reports (category, title, description, location, date_of_incident, tracking_id, status)
-         VALUES ($1::report_category, $2, $3, $4, $5, $6, 'pending')
-           RETURNING id`,
-        [data.category.toLowerCase(), data.title, data.description, data.location, data.dateOfIncident, trackingId],
+      `INSERT INTO reports (category, title, description, location, date_of_incident, tracking_id, status)
+       VALUES ($1::text::report_category, $2, $3, $4, $5, $6, 'pending'::report_status)
+       RETURNING id`,
+      [data.category.toLowerCase(), data.title, data.description, data.location, data.dateOfIncident, trackingId],
     )
 
     const reportId = reportResult.rows[0].id
@@ -50,9 +34,9 @@ export async function submitReport(data: {
       console.log("Inserting attachments...")
       for (const attachment of data.attachments) {
         await client.query(
-            `INSERT INTO attachments (report_id, file_name, file_type, file_url)
-             VALUES ($1, $2, $3, $4)`,
-            [reportId, attachment.name, attachment.type, attachment.url],
+          `INSERT INTO attachments (report_id, file_name, file_type, file_url)
+           VALUES ($1, $2, $3::text::file_type, $4)`,
+          [reportId, attachment.name, attachment.type, attachment.url],
         )
       }
       console.log("Attachments inserted successfully")
