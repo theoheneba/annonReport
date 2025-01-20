@@ -38,22 +38,30 @@ export default function SubmitReport() {
       for (const file of files) {
         const formData = new FormData()
         formData.append("file", file)
+
         const uploadRes = await fetch("/api/upload", {
           method: "POST",
           body: formData,
         })
+
         if (!uploadRes.ok) {
-          throw new Error(`HTTP error! status: ${uploadRes.status}`)
+          const errorData = await uploadRes.json()
+          throw new Error(errorData.error || `Failed to upload file: ${file.name}`)
         }
-        const { url } = await uploadRes.json()
+
+        const uploadData = await uploadRes.json()
+        if (!uploadData.success) {
+          throw new Error(uploadData.error || `Failed to upload file: ${file.name}`)
+        }
+
         uploadedFiles.push({
           name: file.name,
-          url,
+          url: uploadData.url,
           type: file.type,
         })
       }
 
-      // Then submit the report
+      // Submit the report
       const response = await fetch("/api/submit", {
         method: "POST",
         headers: {
@@ -70,7 +78,8 @@ export default function SubmitReport() {
       })
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Failed to submit report")
       }
 
       const data = await response.json()
@@ -83,7 +92,7 @@ export default function SubmitReport() {
       }
     } catch (error) {
       console.error("Error submitting report:", error)
-      toast.error("Failed to submit report. Please try again.")
+      toast.error(error.message || "Failed to submit report. Please try again.")
     } finally {
       setLoading(false)
     }

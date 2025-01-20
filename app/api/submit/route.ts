@@ -1,18 +1,18 @@
 import { NextResponse } from "next/server"
 import { submitReport } from "@/lib/db"
-import crypto from "crypto"
 
 export const runtime = "nodejs"
 
 export async function POST(request: Request) {
-  const anonymousId = crypto.randomBytes(32).toString("hex")
-
   try {
     const data = await request.json()
-    const result = await submitReport({
-      ...data,
-      anonymousId,
-    })
+
+    // Validate required fields
+    if (!data.category || !data.title || !data.description || !data.location || !data.dateOfIncident) {
+      return NextResponse.json({ success: false, error: "Missing required fields" }, { status: 400 })
+    }
+
+    const result = await submitReport(data)
 
     if (result.success) {
       return NextResponse.json({
@@ -23,12 +23,13 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           success: false,
-          error: "Failed to submit report",
+          error: result.error || "Failed to submit report",
         },
         { status: 500 },
       )
     }
   } catch (error) {
+    console.error("Error submitting report:", error)
     return NextResponse.json(
       {
         success: false,

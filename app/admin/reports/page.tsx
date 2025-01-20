@@ -13,27 +13,44 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { MoreHorizontal, ArrowUpDown } from "lucide-react"
+import Link from "next/link"
 
 const reports = [
   {
     id: "1",
+    title: "Workplace Harassment Incident",
     category: "Workplace Harassment",
     status: "Pending",
     dateSubmitted: "2023-06-01",
   },
   {
     id: "2",
+    title: "Financial Fraud in Accounting Department",
     category: "Financial Fraud",
     status: "Investigating",
     dateSubmitted: "2023-06-02",
   },
   {
     id: "3",
+    title: "Corruption in Procurement Process",
     category: "Corruption",
     status: "Resolved",
     dateSubmitted: "2023-06-03",
   },
-  // Add more mock data as needed
+  {
+    id: "4",
+    title: "Environmental Violation at Factory",
+    category: "Environmental",
+    status: "Pending",
+    dateSubmitted: "2023-06-04",
+  },
+  {
+    id: "5",
+    title: "Discrimination in Hiring Process",
+    category: "Discrimination",
+    status: "Investigating",
+    dateSubmitted: "2023-06-05",
+  },
 ]
 
 export default function AdminReports() {
@@ -62,6 +79,9 @@ export default function AdminReports() {
         <div className="flex items-center space-x-2">
           <Input placeholder="Search reports..." className="w-64" />
           <Button>Export</Button>
+          <Button asChild>
+            <Link href="/admin/reports/new">New Report</Link>
+          </Button>
         </div>
       </div>
       <Table>
@@ -69,6 +89,9 @@ export default function AdminReports() {
           <TableRow>
             <TableHead onClick={() => handleSort("id")} className="cursor-pointer">
               ID <ArrowUpDown className="ml-2 h-4 w-4" />
+            </TableHead>
+            <TableHead onClick={() => handleSort("title")} className="cursor-pointer">
+              Title <ArrowUpDown className="ml-2 h-4 w-4" />
             </TableHead>
             <TableHead onClick={() => handleSort("category")} className="cursor-pointer">
               Category <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -86,6 +109,7 @@ export default function AdminReports() {
           {sortedReports.map((report) => (
             <TableRow key={report.id}>
               <TableCell>{report.id}</TableCell>
+              <TableCell>{report.title}</TableCell>
               <TableCell>{report.category}</TableCell>
               <TableCell>{report.status}</TableCell>
               <TableCell>{report.dateSubmitted}</TableCell>

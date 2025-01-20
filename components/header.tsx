@@ -37,6 +37,9 @@ export function Header() {
           <Link href="/submit">
             <Button className="bg-[#FCD116] hover:bg-[#E5BE14] text-black font-medium">Submit Report</Button>
           </Link>
+          <Link href="/admin/login" className="text-gray-300 hover:text-white transition-colors">
+            Admin Login
+          </Link>
         </nav>
       </div>
     </header>
