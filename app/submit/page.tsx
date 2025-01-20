@@ -33,19 +33,25 @@ export default function SubmitReport() {
     setLoading(true)
 
     try {
+      console.log("Submitting report...")
       // First, upload any files
       const uploadedFiles = []
       for (const file of files) {
         const formData = new FormData()
         formData.append("file", file)
 
+        console.log(`Uploading file: ${file.name}`)
         const uploadRes = await fetch("/api/upload", {
           method: "POST",
           body: formData,
         })
 
+        if (!uploadRes.ok) {
+          throw new Error(`Failed to upload file: ${file.name}. Status: ${uploadRes.status}`)
+        }
+
         const uploadData = await uploadRes.json()
-        if (!uploadRes.ok || !uploadData.success) {
+        if (!uploadData.success) {
           throw new Error(uploadData.error || `Failed to upload file: ${file.name}`)
         }
 
@@ -54,6 +60,7 @@ export default function SubmitReport() {
           url: uploadData.url,
           type: file.type,
         })
+        console.log(`File uploaded successfully: ${file.name}`)
       }
 
       // Submit the report
@@ -66,6 +73,7 @@ export default function SubmitReport() {
         attachments: uploadedFiles,
       }
 
+      console.log("Submitting report data:", reportData)
       const response = await fetch("/api/submit", {
         method: "POST",
         headers: {
@@ -74,12 +82,17 @@ export default function SubmitReport() {
         body: JSON.stringify(reportData),
       })
 
+      if (!response.ok) {
+        throw new Error(`Failed to submit report. Status: ${response.status}`)
+      }
+
       const data = await response.json()
 
-      if (!response.ok || !data.success) {
+      if (!data.success) {
         throw new Error(data.error || "Failed to submit report")
       }
 
+      console.log("Report submitted successfully. Tracking ID:", data.trackingId)
       toast.success(`Report submitted successfully! Your tracking ID is: ${data.trackingId}`)
       router.push(`/status?id=${data.trackingId}`)
     } catch (error) {
