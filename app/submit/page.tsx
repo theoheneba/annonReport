@@ -42,6 +42,9 @@ export default function SubmitReport() {
           method: "POST",
           body: formData,
         })
+        if (!uploadRes.ok) {
+          throw new Error(`HTTP error! status: ${uploadRes.status}`)
+        }
         const { url } = await uploadRes.json()
         uploadedFiles.push({
           name: file.name,
@@ -65,6 +68,10 @@ export default function SubmitReport() {
           attachments: uploadedFiles,
         }),
       })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
 
       const data = await response.json()
 

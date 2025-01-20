@@ -62,7 +62,9 @@
     "crypto": "latest",
     "@react-pdf/renderer": "latest",
     "bcryptjs": "latest",
-    "jose": "latest"
+    "jose": "latest",
+    "fs": "latest",
+    "path": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",
