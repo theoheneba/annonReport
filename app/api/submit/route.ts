@@ -20,17 +20,17 @@ export async function POST(request: Request) {
       )
     }
 
-    // Validate category
+    // Validate category (lowercase)
     const validCategories = [
-      "Corruption",
-      "Fraud",
-      "Misconduct",
-      "Harassment",
-      "Discrimination",
-      "Environmental",
-      "Other",
+      "corruption",
+      "fraud",
+      "misconduct",
+      "harassment",
+      "discrimination",
+      "environmental",
+      "other",
     ]
-    if (!validCategories.includes(data.category)) {
+    if (!validCategories.includes(data.category.toLowerCase())) {
       console.error("Invalid category:", data.category)
       return NextResponse.json(
         {

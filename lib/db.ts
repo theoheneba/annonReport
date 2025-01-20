@@ -30,12 +30,12 @@ export async function submitReport(data: {
     // Generate a unique tracking ID (12 characters)
     const trackingId = Math.random().toString(36).substring(2, 14).toUpperCase()
 
-    // Insert the report
+    // Insert the report (ensure category is lowercase)
     const reportResult = await client.query(
       `INSERT INTO reports (category, title, description, location, date_of_incident, tracking_id, status)
        VALUES ($1::report_category, $2, $3, $4, $5, $6, 'pending')
        RETURNING id`,
-      [data.category, data.title, data.description, data.location, data.dateOfIncident, trackingId],
+      [data.category.toLowerCase(), data.title, data.description, data.location, data.dateOfIncident, trackingId],
     )
 
     const reportId = reportResult.rows[0].id
