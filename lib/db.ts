@@ -1,4 +1,5 @@
-import { Pool } from "pg"
+import pkg from "pg"
+const { Pool } = pkg
 import crypto from "crypto"
 
 let pool: Pool | null = null
@@ -8,7 +9,7 @@ export async function getConnection() {
     pool = new Pool({
       connectionString: process.env.DATABASE_URL,
       ssl: {
-        rejectUnauthorized: true,
+        rejectUnauthorized: false,
       },
     })
   }
@@ -19,6 +20,7 @@ export async function submitReport(data: {
   category: string
   description: string
   location: string
+  dateOfIncident: string
   anonymousId: string
 }) {
   const client = await getConnection()
@@ -27,8 +29,8 @@ export async function submitReport(data: {
 
   try {
     await client.query(
-      "INSERT INTO reports (id, category, description, location, tracking_id) VALUES ($1, $2, $3, $4, $5)",
-      [id, data.category, data.description, data.location, trackingId],
+      "INSERT INTO reports (id, category, description, location, date_of_incident, tracking_id) VALUES ($1, $2, $3, $4, $5, $6)",
+      [id, data.category, data.description, data.location, data.dateOfIncident, trackingId],
     )
     return { success: true, trackingId }
   } catch (error) {
@@ -44,7 +46,7 @@ export async function getReportStatus(trackingId: string) {
     const {
       rows: [report],
     } = await client.query(
-      "SELECT status, date_submitted, category, description, location FROM reports WHERE tracking_id = $1",
+      "SELECT status, date_submitted, date_of_incident, category, description, location FROM reports WHERE tracking_id = $1",
       [trackingId],
     )
     const { rows: updates } = await client.query(

@@ -12,7 +12,6 @@ export async function POST(request: Request) {
     const result = await submitReport({
       ...data,
       anonymousId,
-      submittedAt: new Date().toISOString(),
     })
 
     if (result.success) {

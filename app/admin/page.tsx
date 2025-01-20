@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Overview } from "@/components/admin/overview"
+import { RecentReports } from "@/components/admin/recent-reports"
 
 export default function AdminDashboard() {
   return (
@@ -39,13 +40,21 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
       </div>
-      <div className="mt-6">
+      <div className="mt-6 grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Overview</CardTitle>
           </CardHeader>
           <CardContent>
             <Overview />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Reports</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <RecentReports />
           </CardContent>
         </Card>
       </div>

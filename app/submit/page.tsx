@@ -3,101 +3,178 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
-
-const categories = [
-  "Workplace Harassment",
-  "Financial Fraud",
-  "Corruption",
-  "Safety Violations",
-  "Environmental Concerns",
-  "Other",
-]
+import { formSteps } from "@/components/report-form/steps"
+import { CategoryStep } from "@/components/report-form/category-step"
+import { DetailsStep } from "@/components/report-form/details-step"
+import { EvidenceStep } from "@/components/report-form/evidence-step"
+import { ReviewStep } from "@/components/report-form/review-step"
 
 export default function SubmitReport() {
   const router = useRouter()
+  const [currentStep, setCurrentStep] = useState(0)
   const [loading, setLoading] = useState(false)
 
-  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setLoading(true)
+  // Form state
+  const [category, setCategory] = useState<string | null>(null)
+  const [title, setTitle] = useState("")
+  const [description, setDescription] = useState("")
+  const [location, setLocation] = useState("")
+  const [date, setDate] = useState<Date>()
+  const [files, setFiles] = useState<File[]>([])
 
-    const formData = new FormData(event.currentTarget)
-    const response = await fetch("/api/submit", {
-      method: "POST",
-      body: JSON.stringify({
-        category: formData.get("category"),
-        description: formData.get("description"),
-        location: formData.get("location"),
-      }),
-    })
-
-    const data = await response.json()
-
-    if (data.success) {
-      toast.success(`Report submitted successfully! Your tracking ID is: ${data.trackingId}`)
-      router.push(`/status?id=${data.trackingId}`)
-    } else {
-      toast.error("Failed to submit report. Please try again.")
+  async function onSubmit() {
+    if (!category || !title || !description || !location || !date) {
+      toast.error("Please fill in all required fields")
+      return
     }
 
-    setLoading(false)
+    setLoading(true)
+
+    try {
+      // First, upload any files
+      const uploadedFiles = []
+      for (const file of files) {
+        const formData = new FormData()
+        formData.append("file", file)
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        })
+        const { url } = await uploadRes.json()
+        uploadedFiles.push({
+          name: file.name,
+          url,
+          type: file.type,
+        })
+      }
+
+      // Then submit the report
+      const response = await fetch("/api/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          category,
+          title,
+          description,
+          location,
+          dateOfIncident: date.toISOString(),
+          attachments: uploadedFiles,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        toast.success(`Report submitted successfully! Your tracking ID is: ${data.trackingId}`)
+        router.push(`/status?id=${data.trackingId}`)
+      } else {
+        throw new Error(data.error || "Failed to submit report")
+      }
+    } catch (error) {
+      console.error("Error submitting report:", error)
+      toast.error("Failed to submit report. Please try again.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  function nextStep() {
+    if (currentStep === 0 && !category) {
+      toast.error("Please select a category")
+      return
+    }
+    if (currentStep === 1 && (!title || !description || !location || !date)) {
+      toast.error("Please fill in all required fields")
+      return
+    }
+    if (currentStep < formSteps.length - 1) {
+      setCurrentStep((step) => step + 1)
+    }
+  }
+
+  function prevStep() {
+    if (currentStep > 0) {
+      setCurrentStep((step) => step - 1)
+    }
   }
 
   return (
-    <main className="container py-10">
-      <Card className="max-w-2xl mx-auto">
-        <CardHeader>
-          <CardTitle>Submit a Report</CardTitle>
-          <CardDescription>
-            Your report will be handled confidentially and your identity will remain anonymous.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={onSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
-              <Select name="category" required>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+    <main className="container max-w-4xl py-10">
+      <div className="mb-8">
+        <div className="flex justify-between items-center">
+          {formSteps.map((step, index) => (
+            <div key={step.id} className="flex items-center">
+              <div
+                className={cn(
+                  "w-8 h-8 rounded-full flex items-center justify-center border-2",
+                  currentStep === index
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : currentStep > index
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-muted bg-background",
+                )}
+              >
+                {currentStep > index ? "✓" : index + 1}
+              </div>
+              <span
+                className={cn("ml-2", currentStep === index ? "text-primary font-medium" : "text-muted-foreground")}
+              >
+                {step.label}
+              </span>
+              {index < formSteps.length - 1 && (
+                <div className={cn("h-0.5 w-12 mx-2", currentStep > index ? "bg-primary" : "bg-muted")} />
+              )}
             </div>
+          ))}
+        </div>
+      </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
-              <Input id="location" name="location" placeholder="Where did this occur?" required />
-            </div>
+      <div className="border rounded-lg p-6 bg-card">
+        {currentStep === 0 && <CategoryStep selectedCategory={category} onSelectCategory={setCategory} />}
 
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                name="description"
-                placeholder="Please provide detailed information about your concern..."
-                className="min-h-[200px]"
-                required
-              />
-            </div>
+        {currentStep === 1 && (
+          <DetailsStep
+            title={title}
+            setTitle={setTitle}
+            description={description}
+            setDescription={setDescription}
+            location={location}
+            setLocation={setLocation}
+            date={date}
+            setDate={setDate}
+          />
+        )}
 
-            <Button type="submit" className="w-full" disabled={loading}>
+        {currentStep === 2 && <EvidenceStep files={files} setFiles={setFiles} />}
+
+        {currentStep === 3 && (
+          <ReviewStep
+            category={category!}
+            title={title}
+            description={description}
+            location={location}
+            date={date}
+            files={files}
+          />
+        )}
+
+        <div className="mt-6 flex justify-between">
+          <Button variant="outline" onClick={prevStep} disabled={currentStep === 0}>
+            Back
+          </Button>
+
+          {currentStep === formSteps.length - 1 ? (
+            <Button onClick={onSubmit} disabled={loading}>
               {loading ? "Submitting..." : "Submit Report"}
             </Button>
-          </form>
-        </CardContent>
-      </Card>
+          ) : (
+            <Button onClick={nextStep}>Next Step</Button>
+          )}
+        </div>
+      </div>
     </main>
   )
 }

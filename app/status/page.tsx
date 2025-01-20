@@ -6,8 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
-import { PDFDownloadLink } from "@react-pdf/renderer"
-import { GenerateReportPDF } from "@/lib/generatePDF"
+import { format } from "date-fns"
 
 export default function CheckStatus() {
   const [loading, setLoading] = useState(false)
@@ -54,7 +53,15 @@ export default function CheckStatus() {
               <div className="rounded-lg bg-muted p-4">
                 <div className="font-semibold">Status: {report.status}</div>
                 <div className="text-sm text-muted-foreground">
-                  Submitted on: {new Date(report.date_submitted).toLocaleDateString()}
+                  Submitted on: {format(new Date(report.date_submitted), "PPP")}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Date of Incident: {format(new Date(report.date_of_incident), "PPP")}
+                </div>
+                <div className="mt-2">
+                  <div className="font-medium">Category: {report.category}</div>
+                  <div className="font-medium">Location: {report.location}</div>
+                  <div className="mt-2">{report.description}</div>
                 </div>
               </div>
 
@@ -66,21 +73,12 @@ export default function CheckStatus() {
                       <div className="font-medium">Status: {update.status}</div>
                       <div className="mt-2 text-sm">{update.message}</div>
                       <div className="mt-1 text-xs text-muted-foreground">
-                        {new Date(update.date_added).toLocaleDateString()}
+                        {format(new Date(update.date_added), "PPP")}
                       </div>
                     </div>
                   ))}
                 </div>
               )}
-
-              <PDFDownloadLink
-                document={<GenerateReportPDF report={report} updates={report.updates} />}
-                fileName={`report-${report.id}.pdf`}
-              >
-                {({ blob, url, loading, error }) => (
-                  <Button disabled={loading}>{loading ? "Generating PDF..." : "Download Report PDF"}</Button>
-                )}
-              </PDFDownloadLink>
             </div>
           )}
         </CardContent>

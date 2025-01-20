@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Home, FileText, Settings } from "lucide-react"
+import { Home, FileText, Settings, BarChart2, Users } from "lucide-react"
 
 export function AdminSidebar() {
   return (
@@ -18,6 +18,20 @@ export function AdminSidebar() {
         >
           <FileText className="inline-block mr-2" size={20} />
           Reports
+        </Link>
+        <Link
+          href="/admin/statistics"
+          className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white"
+        >
+          <BarChart2 className="inline-block mr-2" size={20} />
+          Statistics
+        </Link>
+        <Link
+          href="/admin/users"
+          className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white"
+        >
+          <Users className="inline-block mr-2" size={20} />
+          Users
         </Link>
         <Link
           href="/admin/settings"
