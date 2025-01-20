@@ -62,7 +62,8 @@
     "@vercel/blob": "latest",
     "bcryptjs": "latest",
     "jose": "latest",
-    "pg": "latest"
+    "pg": "latest",
+    "dotenv": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",

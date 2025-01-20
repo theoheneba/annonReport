@@ -35,7 +35,13 @@ export async function submitReport(data: {
     const trackingId = Math.random().toString(36).substring(2, 14).toUpperCase()
 
     // Insert the report
-    console.log("Inserting report")
+    console.log("Inserting report with data:", {
+      category: data.category,
+      title: data.title,
+      location: data.location,
+      dateOfIncident: data.dateOfIncident,
+      trackingId,
+    })
     const reportResult = await client.query(
       `INSERT INTO reports (category, title, description, location, date_of_incident, tracking_id)
        VALUES ($1, $2, $3, $4, $5, $6)
@@ -48,17 +54,14 @@ export async function submitReport(data: {
 
     // Insert attachments if any
     if (data.attachments && data.attachments.length > 0) {
-      console.log("Inserting attachments")
-      const attachmentValues = data.attachments
-        .map((attachment) => {
-          return `('${reportId}', '${attachment.name}', '${attachment.type}', '${attachment.url}')`
-        })
-        .join(",")
-
-      await client.query(
-        `INSERT INTO attachments (report_id, file_name, file_type, file_url)
-         VALUES ${attachmentValues}`,
-      )
+      console.log(`Inserting ${data.attachments.length} attachments`)
+      for (const attachment of data.attachments) {
+        await client.query(
+          `INSERT INTO attachments (report_id, file_name, file_type, file_url)
+           VALUES ($1, $2, $3, $4)`,
+          [reportId, attachment.name, attachment.type, attachment.url],
+        )
+      }
       console.log("Attachments inserted")
     }
 
@@ -69,7 +72,12 @@ export async function submitReport(data: {
   } catch (error) {
     await client.query("ROLLBACK")
     console.error("Error submitting report:", error)
-    return { success: false, error: "Failed to submit report" }
+    return {
+      success: false,
+      error: "Failed to submit report: " + (error instanceof Error ? error.message : String(error)),
+    }
+  } finally {
+    client.release()
   }
 }
 

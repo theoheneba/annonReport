@@ -39,25 +39,16 @@ export default function SubmitReport() {
         const formData = new FormData()
         formData.append("file", file)
 
-        console.log(`Uploading file: ${file.name}`)
         const uploadRes = await fetch("/api/upload", {
           method: "POST",
           body: formData,
         })
 
-        if (!uploadRes.ok) {
-          const errorData = await uploadRes.json()
-          console.error(`Upload error for ${file.name}:`, errorData)
-          throw new Error(errorData.error || `Failed to upload file: ${file.name}`)
-        }
-
         const uploadData = await uploadRes.json()
-        if (!uploadData.success) {
-          console.error(`Upload unsuccessful for ${file.name}:`, uploadData)
+        if (!uploadRes.ok || !uploadData.success) {
           throw new Error(uploadData.error || `Failed to upload file: ${file.name}`)
         }
 
-        console.log(`File uploaded successfully: ${file.name}`)
         uploadedFiles.push({
           name: file.name,
           url: uploadData.url,
@@ -66,41 +57,34 @@ export default function SubmitReport() {
       }
 
       // Submit the report
-      console.log("Submitting report...")
+      const reportData = {
+        category,
+        title,
+        description,
+        location,
+        dateOfIncident: date.toISOString(),
+        attachments: uploadedFiles,
+      }
+
       const response = await fetch("/api/submit", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          category,
-          title,
-          description,
-          location,
-          dateOfIncident: date.toISOString(),
-          attachments: uploadedFiles,
-        }),
+        body: JSON.stringify(reportData),
       })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        console.error("Submit error:", errorData)
-        throw new Error(errorData.error || "Failed to submit report")
-      }
 
       const data = await response.json()
 
-      if (data.success) {
-        console.log("Report submitted successfully")
-        toast.success(`Report submitted successfully! Your tracking ID is: ${data.trackingId}`)
-        router.push(`/status?id=${data.trackingId}`)
-      } else {
-        console.error("Submit unsuccessful:", data)
+      if (!response.ok || !data.success) {
         throw new Error(data.error || "Failed to submit report")
       }
+
+      toast.success(`Report submitted successfully! Your tracking ID is: ${data.trackingId}`)
+      router.push(`/status?id=${data.trackingId}`)
     } catch (error) {
       console.error("Error submitting report:", error)
-      toast.error(error.message || "Failed to submit report. Please try again.")
+      toast.error(error instanceof Error ? error.message : "Failed to submit report. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -127,80 +111,82 @@ export default function SubmitReport() {
   }
 
   return (
-    <main className="container max-w-4xl py-10">
-      <div className="mb-8">
-        <div className="flex justify-between items-center">
-          {formSteps.map((step, index) => (
-            <div key={step.id} className="flex items-center">
-              <div
-                className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center border-2",
-                  currentStep === index
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : currentStep > index
+    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-background">
+      <div className="w-full max-w-4xl mx-auto p-6">
+        <div className="mb-8">
+          <div className="flex justify-between items-center">
+            {formSteps.map((step, index) => (
+              <div key={step.id} className="flex items-center">
+                <div
+                  className={cn(
+                    "w-8 h-8 rounded-full flex items-center justify-center border-2",
+                    currentStep === index
                       ? "border-primary bg-primary text-primary-foreground"
-                      : "border-muted bg-background",
+                      : currentStep > index
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-muted bg-background",
+                  )}
+                >
+                  {currentStep > index ? "✓" : index + 1}
+                </div>
+                <span
+                  className={cn("ml-2", currentStep === index ? "text-primary font-medium" : "text-muted-foreground")}
+                >
+                  {step.label}
+                </span>
+                {index < formSteps.length - 1 && (
+                  <div className={cn("h-0.5 w-12 mx-2", currentStep > index ? "bg-primary" : "bg-muted")} />
                 )}
-              >
-                {currentStep > index ? "✓" : index + 1}
               </div>
-              <span
-                className={cn("ml-2", currentStep === index ? "text-primary font-medium" : "text-muted-foreground")}
-              >
-                {step.label}
-              </span>
-              {index < formSteps.length - 1 && (
-                <div className={cn("h-0.5 w-12 mx-2", currentStep > index ? "bg-primary" : "bg-muted")} />
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
 
-      <div className="border rounded-lg p-6 bg-card">
-        {currentStep === 0 && <CategoryStep selectedCategory={category} onSelectCategory={setCategory} />}
+        <div className="border rounded-lg p-6 bg-card shadow-lg">
+          {currentStep === 0 && <CategoryStep selectedCategory={category} onSelectCategory={setCategory} />}
 
-        {currentStep === 1 && (
-          <DetailsStep
-            title={title}
-            setTitle={setTitle}
-            description={description}
-            setDescription={setDescription}
-            location={location}
-            setLocation={setLocation}
-            date={date}
-            setDate={setDate}
-          />
-        )}
-
-        {currentStep === 2 && <EvidenceStep files={files} setFiles={setFiles} />}
-
-        {currentStep === 3 && (
-          <ReviewStep
-            category={category!}
-            title={title}
-            description={description}
-            location={location}
-            date={date}
-            files={files}
-          />
-        )}
-
-        <div className="mt-6 flex justify-between">
-          <Button variant="outline" onClick={prevStep} disabled={currentStep === 0}>
-            Back
-          </Button>
-
-          {currentStep === formSteps.length - 1 ? (
-            <Button onClick={onSubmit} disabled={loading}>
-              {loading ? "Submitting..." : "Submit Report"}
-            </Button>
-          ) : (
-            <Button onClick={nextStep}>Next Step</Button>
+          {currentStep === 1 && (
+            <DetailsStep
+              title={title}
+              setTitle={setTitle}
+              description={description}
+              setDescription={setDescription}
+              location={location}
+              setLocation={setLocation}
+              date={date}
+              setDate={setDate}
+            />
           )}
+
+          {currentStep === 2 && <EvidenceStep files={files} setFiles={setFiles} />}
+
+          {currentStep === 3 && (
+            <ReviewStep
+              category={category!}
+              title={title}
+              description={description}
+              location={location}
+              date={date}
+              files={files}
+            />
+          )}
+
+          <div className="mt-6 flex justify-between">
+            <Button variant="outline" onClick={prevStep} disabled={currentStep === 0}>
+              Back
+            </Button>
+
+            {currentStep === formSteps.length - 1 ? (
+              <Button onClick={onSubmit} disabled={loading}>
+                {loading ? "Submitting..." : "Submit Report"}
+              </Button>
+            ) : (
+              <Button onClick={nextStep}>Next Step</Button>
+            )}
+          </div>
         </div>
       </div>
-    </main>
+    </div>
   )
 }
 
