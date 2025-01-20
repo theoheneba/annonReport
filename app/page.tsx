@@ -31,20 +31,20 @@ export default function Home() {
       </section>
 
       <section className="py-20 bg-[#0D1117] text-white">
-        <div className="relative">
-          <div className="h-1 w-full flex">
-            <div className="flex-1 bg-[#CE1126]" />
-            <div className="flex-1 bg-[#FCD116] relative">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-2 h-2 bg-black transform rotate-45" />
-              </div>
-            </div>
-            <div className="flex-1 bg-[#006B3F]" />
-          </div>
-        </div>
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">Why Choose Our Platform?</h2>
+            <div className="relative my-4">
+              <div className="h-1 w-full flex">
+                <div className="flex-1 bg-[#CE1126]" />
+                <div className="flex-1 bg-[#FCD116] relative">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-2 h-2 bg-black transform rotate-45" />
+                  </div>
+                </div>
+                <div className="flex-1 bg-[#006B3F]" />
+              </div>
+            </div>
             <p className="text-xl text-gray-300">
               We provide the tools and protection you need to report concerns safely.
             </p>
