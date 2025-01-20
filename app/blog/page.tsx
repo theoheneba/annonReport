@@ -1,5 +1,11 @@
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Blog - Ghana Report",
+  description: "Stay informed about whistleblowing, workplace ethics, and anonymous reporting in Ghana.",
+}
 
 const blogPosts = [
   {
@@ -39,7 +45,7 @@ export default function BlogPage() {
               <p className="text-sm text-muted-foreground mb-4">{post.excerpt}</p>
               <div className="flex justify-between items-center text-sm">
                 <span>{post.author}</span>
-                <span>{post.publishDate}</span>
+                <time dateTime={post.publishDate}>{post.publishDate}</time>
               </div>
               <Link href={`/blog/${post.id}`} className="mt-4 inline-block text-blue-600 hover:underline">
                 Read more
