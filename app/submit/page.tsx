@@ -9,6 +9,7 @@ import { CategoryStep } from "@/components/report-form/category-step"
 import { DetailsStep } from "@/components/report-form/details-step"
 import { EvidenceStep } from "@/components/report-form/evidence-step"
 import { ReviewStep } from "@/components/report-form/review-step"
+import { cn } from "@/lib/utils"
 
 export default function SubmitReport() {
   const router = useRouter()
