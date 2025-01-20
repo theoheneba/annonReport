@@ -5,6 +5,7 @@ let pool: pkg.Pool | null = null
 
 export async function getConnection() {
   if (!pool) {
+    console.log("Creating new database connection pool")
     pool = new Pool({
       connectionString: process.env.DATABASE_URL,
       ssl: {
@@ -23,15 +24,18 @@ export async function submitReport(data: {
   dateOfIncident: string
   attachments: Array<{ name: string; url: string; type: string }>
 }) {
+  console.log("Submitting report to database")
   const client = await getConnection()
 
   try {
     await client.query("BEGIN")
+    console.log("Transaction begun")
 
     // Generate a unique tracking ID (12 characters)
     const trackingId = Math.random().toString(36).substring(2, 14).toUpperCase()
 
     // Insert the report
+    console.log("Inserting report")
     const reportResult = await client.query(
       `INSERT INTO reports (category, title, description, location, date_of_incident, tracking_id)
        VALUES ($1, $2, $3, $4, $5, $6)
@@ -40,9 +44,11 @@ export async function submitReport(data: {
     )
 
     const reportId = reportResult.rows[0].id
+    console.log(`Report inserted with ID: ${reportId}`)
 
     // Insert attachments if any
     if (data.attachments && data.attachments.length > 0) {
+      console.log("Inserting attachments")
       const attachmentValues = data.attachments
         .map((attachment) => {
           return `('${reportId}', '${attachment.name}', '${attachment.type}', '${attachment.url}')`
@@ -53,9 +59,11 @@ export async function submitReport(data: {
         `INSERT INTO attachments (report_id, file_name, file_type, file_url)
          VALUES ${attachmentValues}`,
       )
+      console.log("Attachments inserted")
     }
 
     await client.query("COMMIT")
+    console.log("Transaction committed")
 
     return { success: true, trackingId }
   } catch (error) {

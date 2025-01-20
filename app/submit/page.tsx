@@ -39,6 +39,7 @@ export default function SubmitReport() {
         const formData = new FormData()
         formData.append("file", file)
 
+        console.log(`Uploading file: ${file.name}`)
         const uploadRes = await fetch("/api/upload", {
           method: "POST",
           body: formData,
@@ -46,14 +47,17 @@ export default function SubmitReport() {
 
         if (!uploadRes.ok) {
           const errorData = await uploadRes.json()
+          console.error(`Upload error for ${file.name}:`, errorData)
           throw new Error(errorData.error || `Failed to upload file: ${file.name}`)
         }
 
         const uploadData = await uploadRes.json()
         if (!uploadData.success) {
+          console.error(`Upload unsuccessful for ${file.name}:`, uploadData)
           throw new Error(uploadData.error || `Failed to upload file: ${file.name}`)
         }
 
+        console.log(`File uploaded successfully: ${file.name}`)
         uploadedFiles.push({
           name: file.name,
           url: uploadData.url,
@@ -62,6 +66,7 @@ export default function SubmitReport() {
       }
 
       // Submit the report
+      console.log("Submitting report...")
       const response = await fetch("/api/submit", {
         method: "POST",
         headers: {
@@ -79,15 +84,18 @@ export default function SubmitReport() {
 
       if (!response.ok) {
         const errorData = await response.json()
+        console.error("Submit error:", errorData)
         throw new Error(errorData.error || "Failed to submit report")
       }
 
       const data = await response.json()
 
       if (data.success) {
+        console.log("Report submitted successfully")
         toast.success(`Report submitted successfully! Your tracking ID is: ${data.trackingId}`)
         router.push(`/status?id=${data.trackingId}`)
       } else {
+        console.error("Submit unsuccessful:", data)
         throw new Error(data.error || "Failed to submit report")
       }
     } catch (error) {
