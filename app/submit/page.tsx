@@ -1,41 +1,18 @@
-"use client"
+async function onSubmit() {
+  if (!category || !title || !description || !location || !date) {
+    toast.error("Please fill in all required fields")
+    return
+  }
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { toast } from "sonner"
-import { formSteps } from "@/components/report-form/steps"
-import { CategoryStep } from "@/components/report-form/category-step"
-import { DetailsStep } from "@/components/report-form/details-step"
-import { EvidenceStep } from "@/components/report-form/evidence-step"
-import { ReviewStep } from "@/components/report-form/review-step"
-import { cn } from "@/lib/utils"
+  setLoading(true)
 
-export default function SubmitReport() {
-  const router = useRouter()
-  const [currentStep, setCurrentStep] = useState(0)
-  const [loading, setLoading] = useState(false)
+  try {
+    console.log("Starting report submission...")
+    // First, upload any files
+    const uploadedFiles = []
 
-  // Form state
-  const [category, setCategory] = useState<string | null>(null)
-  const [title, setTitle] = useState("")
-  const [description, setDescription] = useState("")
-  const [location, setLocation] = useState("")
-  const [date, setDate] = useState<Date>()
-  const [files, setFiles] = useState<File[]>([])
-
-  async function onSubmit() {
-    if (!category || !title || !description || !location || !date) {
-      toast.error("Please fill in all required fields")
-      return
-    }
-
-    setLoading(true)
-
-    try {
-      console.log("Submitting report...")
-      // First, upload any files
-      const uploadedFiles = []
+    if (files.length > 0) {
+      console.log(`Uploading ${files.length} files...`)
       for (const file of files) {
         const formData = new FormData()
         formData.append("file", file)
@@ -62,144 +39,46 @@ export default function SubmitReport() {
         })
         console.log(`File uploaded successfully: ${file.name}`)
       }
-
-      // Submit the report
-      const reportData = {
-        category,
-        title,
-        description,
-        location,
-        dateOfIncident: date.toISOString(),
-        attachments: uploadedFiles,
-      }
-
-      console.log("Submitting report data:", reportData)
-      const response = await fetch("/api/submit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(reportData),
-      })
-
-      if (!response.ok) {
-        throw new Error(`Failed to submit report. Status: ${response.status}`)
-      }
-
-      const data = await response.json()
-
-      if (!data.success) {
-        throw new Error(data.error || "Failed to submit report")
-      }
-
-      console.log("Report submitted successfully. Tracking ID:", data.trackingId)
-      toast.success(`Report submitted successfully! Your tracking ID is: ${data.trackingId}`)
-      router.push(`/status?id=${data.trackingId}`)
-    } catch (error) {
-      console.error("Error submitting report:", error)
-      toast.error(error instanceof Error ? error.message : "Failed to submit report. Please try again.")
-    } finally {
-      setLoading(false)
     }
+
+    // Submit the report
+    const reportData = {
+      category,
+      title,
+      description,
+      location,
+      dateOfIncident: date.toISOString().split("T")[0], // Format as YYYY-MM-DD
+      attachments: uploadedFiles,
+    }
+
+    console.log("Submitting report data:", reportData)
+    const response = await fetch("/api/submit", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(reportData),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.error || `Failed to submit report. Status: ${response.status}`)
+    }
+
+    const data = await response.json()
+
+    if (!data.success) {
+      throw new Error(data.error || "Failed to submit report")
+    }
+
+    console.log("Report submitted successfully. Tracking ID:", data.trackingId)
+    toast.success(`Report submitted successfully! Your tracking ID is: ${data.trackingId}`)
+    router.push(`/status?id=${data.trackingId}`)
+  } catch (error) {
+    console.error("Error submitting report:", error)
+    toast.error(error instanceof Error ? error.message : "Failed to submit report. Please try again.")
+  } finally {
+    setLoading(false)
   }
-
-  function nextStep() {
-    if (currentStep === 0 && !category) {
-      toast.error("Please select a category")
-      return
-    }
-    if (currentStep === 1 && (!title || !description || !location || !date)) {
-      toast.error("Please fill in all required fields")
-      return
-    }
-    if (currentStep < formSteps.length - 1) {
-      setCurrentStep((step) => step + 1)
-    }
-  }
-
-  function prevStep() {
-    if (currentStep > 0) {
-      setCurrentStep((step) => step - 1)
-    }
-  }
-
-  return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-background">
-      <div className="w-full max-w-4xl mx-auto p-6">
-        <div className="mb-8">
-          <div className="flex justify-between items-center">
-            {formSteps.map((step, index) => (
-              <div key={step.id} className="flex items-center">
-                <div
-                  className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center border-2",
-                    currentStep === index
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : currentStep > index
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-muted bg-background",
-                  )}
-                >
-                  {currentStep > index ? "✓" : index + 1}
-                </div>
-                <span
-                  className={cn("ml-2", currentStep === index ? "text-primary font-medium" : "text-muted-foreground")}
-                >
-                  {step.label}
-                </span>
-                {index < formSteps.length - 1 && (
-                  <div className={cn("h-0.5 w-12 mx-2", currentStep > index ? "bg-primary" : "bg-muted")} />
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="border rounded-lg p-6 bg-card shadow-lg">
-          {currentStep === 0 && <CategoryStep selectedCategory={category} onSelectCategory={setCategory} />}
-
-          {currentStep === 1 && (
-            <DetailsStep
-              title={title}
-              setTitle={setTitle}
-              description={description}
-              setDescription={setDescription}
-              location={location}
-              setLocation={setLocation}
-              date={date}
-              setDate={setDate}
-            />
-          )}
-
-          {currentStep === 2 && <EvidenceStep files={files} setFiles={setFiles} />}
-
-          {currentStep === 3 && (
-            <ReviewStep
-              category={category!}
-              title={title}
-              description={description}
-              location={location}
-              date={date}
-              files={files}
-            />
-          )}
-
-          <div className="mt-6 flex justify-between">
-            <Button variant="outline" onClick={prevStep} disabled={currentStep === 0}>
-              Back
-            </Button>
-
-            {currentStep === formSteps.length - 1 ? (
-              <Button onClick={onSubmit} disabled={loading}>
-                {loading ? "Submitting..." : "Submit Report"}
-              </Button>
-            ) : (
-              <Button onClick={nextStep}>Next Step</Button>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
 }
 

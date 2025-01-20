@@ -3,13 +3,13 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Create an enum for report categories
 CREATE TYPE report_category AS ENUM (
-  'Corruption',
-  'Fraud',
-  'Misconduct',
-  'Harassment',
-  'Discrimination',
-  'Environmental',
-  'Other'
+  'corruption',
+  'fraud',
+  'misconduct',
+  'harassment',
+  'discrimination',
+  'environmental',
+  'other'
 );
 
 -- Create an enum for report status
@@ -50,27 +50,4 @@ CREATE TABLE IF NOT EXISTS attachments (
   uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE CASCADE
 );
-
--- Updates table
-CREATE TABLE IF NOT EXISTS updates (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  report_id UUID NOT NULL,
-  status report_status NOT NULL,
-  message TEXT,
-  date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE CASCADE
-);
-
--- Admins table
-CREATE TABLE IF NOT EXISTS admins (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  username VARCHAR(50) UNIQUE NOT NULL,
-  password_hash VARCHAR(255) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Create indexes for better query performance
-CREATE INDEX idx_reports_tracking_id ON reports(tracking_id);
-CREATE INDEX idx_attachments_report_id ON attachments(report_id);
-CREATE INDEX idx_updates_report_id ON updates(report_id);
 
