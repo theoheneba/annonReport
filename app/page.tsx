@@ -7,7 +7,7 @@ import Script from "next/script"
 export const metadata = {
   title: "Home",
   description:
-    "Ghana Report - A secure platform for anonymous reporting of workplace misconduct, fraud, and ethical concerns.",
+    "Ghana Report Hub- A secure platform for anonymous reporting of workplace misconduct, fraud, and ethical concerns.",
 }
 
 export default function Home() {
