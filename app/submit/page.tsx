@@ -117,45 +117,47 @@ export default function SubmitReport() {
   }
 
   return (
-    <div className="container mx-auto py-10">
-      <h1 className="text-3xl font-bold mb-6">Submit a Report</h1>
+    <div className="container mx-auto py-6 sm:py-10 px-4">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6">Submit a Report</h1>
       <div className="max-w-2xl mx-auto">
-        {currentStep === 0 && <CategoryStep selectedCategory={category} onSelectCategory={setCategory} />}
-        {currentStep === 1 && (
-          <DetailsStep
-            title={title}
-            setTitle={setTitle}
-            description={description}
-            setDescription={setDescription}
-            location={location}
-            setLocation={setLocation}
-            date={date}
-            setDate={setDate}
-          />
-        )}
-        {currentStep === 2 && <EvidenceStep files={files} setFiles={setFiles} />}
-        {currentStep === 3 && (
-          <ReviewStep
-            category={category || ""}
-            title={title}
-            description={description}
-            location={location}
-            date={date}
-            files={files}
-          />
-        )}
-        <div className="mt-6 flex justify-between">
+        <div className="bg-card rounded-lg p-4 sm:p-6">
+          {currentStep === 0 && <CategoryStep selectedCategory={category} onSelectCategory={setCategory} />}
+          {currentStep === 1 && (
+            <DetailsStep
+              title={title}
+              setTitle={setTitle}
+              description={description}
+              setDescription={setDescription}
+              location={location}
+              setLocation={setLocation}
+              date={date}
+              setDate={setDate}
+            />
+          )}
+          {currentStep === 2 && <EvidenceStep files={files} setFiles={setFiles} />}
+          {currentStep === 3 && (
+            <ReviewStep
+              category={category || ""}
+              title={title}
+              description={description}
+              location={location}
+              date={date}
+              files={files}
+            />
+          )}
+        </div>
+        <div className="mt-6 flex flex-col sm:flex-row justify-between gap-4">
           {currentStep > 0 && (
-            <Button onClick={handlePrevious} variant="outline">
+            <Button onClick={handlePrevious} variant="outline" className="w-full sm:w-auto order-2 sm:order-1">
               Previous
             </Button>
           )}
           {currentStep < formSteps.length - 1 ? (
-            <Button onClick={handleNext} className="ml-auto">
+            <Button onClick={handleNext} className="w-full sm:w-auto order-1 sm:order-2">
               Next
             </Button>
           ) : (
-            <Button onClick={onSubmit} disabled={loading} className="ml-auto">
+            <Button onClick={onSubmit} disabled={loading} className="w-full sm:w-auto order-1 sm:order-2">
               {loading ? "Submitting..." : "Submit Report"}
             </Button>
           )}

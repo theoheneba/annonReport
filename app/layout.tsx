@@ -9,27 +9,8 @@ export const metadata: Metadata = {
     template: "%s | Ghana Report",
   },
   description: "A secure platform for reporting workplace misconduct, fraud, and ethical concerns in Ghana.",
-  keywords: ["Ghana", "anonymous reporting", "whistleblowing", "workplace misconduct", "fraud reporting"],
-  authors: [{ name: "Ghana Report Team" }],
-  openGraph: {
-    type: "website",
-    locale: "en_GH",
-    url: "https://www.ghanareport.com",
-    siteName: "Ghana Report",
-    images: [
-      {
-        url: "https://www.ghanareport.com/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Ghana Report - Secure Anonymous Reporting",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    site: "@GhanaReport",
-    creator: "@GhanaReport",
-  },
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0",
+  themeColor: "#0D1117",
 }
 
 export default function RootLayout({
@@ -39,14 +20,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="canonical" href="https://www.ghanareport.com" />
-      </head>
-      <body className="bg-[#0D1117]">
+      <body className="bg-[#0D1117] min-h-screen flex flex-col">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <Header />
-          <main>{children}</main>
-          <footer>{/* Add footer content here */}</footer>
+          <main className="flex-1">{children}</main>
         </ThemeProvider>
       </body>
     </html>

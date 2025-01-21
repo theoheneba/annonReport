@@ -1,8 +1,14 @@
--- Drop existing enum and table if they exist
-DROP TABLE IF EXISTS reports CASCADE;
-DROP TYPE IF EXISTS report_category CASCADE;
+-- Create extensions if they don't exist
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Create an enum for report categories (lowercase)
+-- Drop existing tables and types if they exist
+DROP TABLE IF EXISTS attachments;
+DROP TABLE IF EXISTS reports;
+DROP TYPE IF EXISTS report_category;
+DROP TYPE IF EXISTS report_status;
+DROP TYPE IF EXISTS file_type;
+
+-- Create enums
 CREATE TYPE report_category AS ENUM (
   'corruption',
   'fraud',
@@ -13,7 +19,6 @@ CREATE TYPE report_category AS ENUM (
   'other'
 );
 
--- Create an enum for report status
 CREATE TYPE report_status AS ENUM (
   'pending',
   'investigating',
@@ -21,15 +26,14 @@ CREATE TYPE report_status AS ENUM (
   'closed'
 );
 
--- Create an enum for file types
 CREATE TYPE file_type AS ENUM (
   'pdf',
   'image',
   'video'
 );
 
--- Reports table
-CREATE TABLE IF NOT EXISTS reports (
+-- Create reports table
+CREATE TABLE reports (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   category report_category NOT NULL,
   title VARCHAR(255) NOT NULL,
@@ -41,14 +45,19 @@ CREATE TABLE IF NOT EXISTS reports (
   tracking_id VARCHAR(12) UNIQUE NOT NULL
 );
 
--- Evidence/attachments table
-CREATE TABLE IF NOT EXISTS attachments (
+-- Create attachments table
+CREATE TABLE attachments (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  report_id UUID NOT NULL REFERENCES reports(id),
+  report_id UUID NOT NULL REFERENCES reports(id) ON DELETE CASCADE,
   file_name VARCHAR(255) NOT NULL,
   file_type file_type NOT NULL,
   file_url TEXT NOT NULL,
-  uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE CASCADE
+  uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Create indexes
+CREATE INDEX idx_reports_tracking_id ON reports(tracking_id);
+CREATE INDEX idx_reports_category ON reports(category);
+CREATE INDEX idx_reports_status ON reports(status);
+CREATE INDEX idx_attachments_report_id ON attachments(report_id);
 

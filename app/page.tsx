@@ -32,33 +32,36 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
       <div className="min-h-screen bg-[#0D1117]">
-        <section className="relative min-h-screen flex flex-col items-center justify-center text-white px-4">
+        <section className="relative min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center px-4 py-16">
           <Image
             src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Coat_of_arms_of_Ghana.svg/500px-Coat_of_arms_of_Ghana.svg.png"
             alt="Coat of arms of Ghana"
             width={120}
             height={120}
-            className="mb-8"
+            className="mb-8 w-24 h-24 sm:w-32 sm:h-32"
+            priority
           />
-          <h1 className="text-5xl md:text-6xl font-bold text-center mb-4">Ghana Report</h1>
-          <p className="text-xl md:text-2xl text-gray-300 text-center max-w-3xl mb-8">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-center mb-4 text-white">Ghana Report</h1>
+          <p className="text-lg sm:text-xl md:text-2xl text-gray-300 text-center max-w-3xl mb-8 px-4">
             A secure platform for reporting workplace misconduct, fraud, and ethical concerns.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Link href="/submit">
-              <Button className="bg-[#F4D03F] hover:bg-[#F1C40F] text-black text-lg px-8 py-6">Submit a Report</Button>
+          <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md px-4">
+            <Link href="/submit" className="w-full">
+              <Button className="bg-[#F4D03F] hover:bg-[#F1C40F] text-black w-full text-lg py-6">
+                Submit a Report
+              </Button>
             </Link>
-            <Link href="/status">
-              <Button variant="outline" className="text-white border-white hover:bg-white/10 text-lg px-8 py-6">
-                Check Report Status
+            <Link href="/status" className="w-full">
+              <Button variant="outline" className="text-white border-white hover:bg-white/10 w-full text-lg py-6">
+                Check Status
               </Button>
             </Link>
           </div>
         </section>
 
-        <section className="py-20 bg-[#0D1117] text-white">
-          <div className="container mx-auto px-4">
-            <h2 className="text-4xl font-bold mb-4 text-center">Why Choose Our Platform?</h2>
+        <section className="py-16 md:py-20 bg-[#0D1117] text-white">
+          <div className="container px-4 mx-auto">
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-center">Why Choose Our Platform?</h2>
             <div className="relative my-4">
               <div className="h-1 w-full flex">
                 <div className="flex-1 bg-[#CE1126]" />
@@ -70,12 +73,12 @@ export default function Home() {
                 <div className="flex-1 bg-[#006B3F]" />
               </div>
             </div>
-            <p className="text-xl text-gray-300 text-center mb-12">
+            <p className="text-lg sm:text-xl text-gray-300 text-center mb-12 px-4">
               We provide the tools and protection you need to report concerns safely.
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              <div className="bg-[#1C2128] p-8 rounded-lg">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto px-4">
+              <div className="bg-[#1C2128] p-6 sm:p-8 rounded-lg">
                 <Lock className="w-12 h-12 text-[#FCD116] mb-4" />
                 <h3 className="text-xl font-semibold mb-2">Anonymous Reporting</h3>
                 <p className="text-gray-400">
@@ -83,7 +86,7 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="bg-[#1C2128] p-8 rounded-lg">
+              <div className="bg-[#1C2128] p-6 sm:p-8 rounded-lg">
                 <Shield className="w-12 h-12 text-[#FCD116] mb-4" />
                 <h3 className="text-xl font-semibold mb-2">Secure Platform</h3>
                 <p className="text-gray-400">
@@ -91,25 +94,25 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="bg-[#1C2128] p-8 rounded-lg">
+              <div className="bg-[#1C2128] p-6 sm:p-8 rounded-lg">
                 <Clock className="w-12 h-12 text-[#FCD116] mb-4" />
                 <h3 className="text-xl font-semibold mb-2">Real-time Updates</h3>
                 <p className="text-gray-400">Track the status of your report and receive updates on investigations.</p>
               </div>
 
-              <div className="bg-[#1C2128] p-8 rounded-lg">
+              <div className="bg-[#1C2128] p-6 sm:p-8 rounded-lg">
                 <FileText className="w-12 h-12 text-[#FCD116] mb-4" />
                 <h3 className="text-xl font-semibold mb-2">Evidence Upload</h3>
                 <p className="text-gray-400">Securely upload supporting documents and evidence with your report.</p>
               </div>
 
-              <div className="bg-[#1C2128] p-8 rounded-lg">
+              <div className="bg-[#1C2128] p-6 sm:p-8 rounded-lg">
                 <Eye className="w-12 h-12 text-[#FCD116] mb-4" />
                 <h3 className="text-xl font-semibold mb-2">Transparent Process</h3>
                 <p className="text-gray-400">Clear and documented handling procedures for all reported cases.</p>
               </div>
 
-              <div className="bg-[#1C2128] p-8 rounded-lg">
+              <div className="bg-[#1C2128] p-6 sm:p-8 rounded-lg">
                 <UserCheck className="w-12 h-12 text-[#FCD116] mb-4" />
                 <h3 className="text-xl font-semibold mb-2">Protected Identity</h3>
                 <p className="text-gray-400">
@@ -120,14 +123,16 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="bg-[#FCD116] py-20">
+        <section className="bg-[#FCD116] py-16 md:py-20">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-black mb-4">Ready to Make a Difference?</h2>
-            <p className="text-xl text-gray-800 mb-8">
+            <p className="text-xl text-gray-800 mb-8 px-4">
               Your report can help create a safer, more ethical workplace. Take the first step today.
             </p>
             <Link href="/submit">
-              <Button className="bg-black hover:bg-gray-900 text-white px-8 py-6 text-lg">Submit a Report</Button>
+              <Button className="bg-black hover:bg-gray-900 text-white px-8 py-6 text-lg w-full sm:w-auto">
+                Submit a Report
+              </Button>
             </Link>
           </div>
         </section>

@@ -14,18 +14,37 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import type { BlogPost, SortableColumn } from "@/types/blog"
 
-const blogPosts = [
-  { id: "1", title: "Introduction to Anonymous Reporting", author: "John Doe", publishDate: "2023-06-01" },
-  { id: "2", title: "The Importance of Whistleblowing", author: "Jane Smith", publishDate: "2023-06-05" },
-  { id: "3", title: "Protecting Whistleblowers: Best Practices", author: "Bob Johnson", publishDate: "2023-06-10" },
+const blogPosts: BlogPost[] = [
+  {
+    id: "1",
+    title: "Introduction to Anonymous Reporting",
+    author: "John Doe",
+    publishDate: "2023-06-01",
+    excerpt: "Learn about the importance of anonymous reporting in maintaining workplace integrity...",
+  },
+  {
+    id: "2",
+    title: "The Importance of Whistleblowing",
+    author: "Jane Smith",
+    publishDate: "2023-06-05",
+    excerpt: "Discover the crucial role of whistleblowing in upholding ethical standards...",
+  },
+  {
+    id: "3",
+    title: "Protecting Whistleblowers: Best Practices",
+    author: "Bob Johnson",
+    publishDate: "2023-06-10",
+    excerpt: "Explore effective strategies for safeguarding whistleblowers and their disclosures...",
+  },
 ]
 
 export default function AdminBlog() {
-  const [sortColumn, setSortColumn] = useState("")
-  const [sortDirection, setSortDirection] = useState("asc")
+  const [sortColumn, setSortColumn] = useState<SortableColumn | "">("")
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc")
 
-  const handleSort = (column) => {
+  const handleSort = (column: SortableColumn) => {
     if (column === sortColumn) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc")
     } else {
@@ -35,8 +54,10 @@ export default function AdminBlog() {
   }
 
   const sortedPosts = [...blogPosts].sort((a, b) => {
-    if (a[sortColumn] < b[sortColumn]) return sortDirection === "asc" ? -1 : 1
-    if (a[sortColumn] > b[sortColumn]) return sortDirection === "asc" ? 1 : -1
+    if (sortColumn) {
+      if (a[sortColumn] < b[sortColumn]) return sortDirection === "asc" ? -1 : 1
+      if (a[sortColumn] > b[sortColumn]) return sortDirection === "asc" ? 1 : -1
+    }
     return 0
   })
 

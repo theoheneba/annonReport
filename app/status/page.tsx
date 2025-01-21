@@ -30,7 +30,7 @@ export default function CheckStatus() {
   }
 
   return (
-    <main className="container py-10">
+    <main className="container py-6 sm:py-10 px-4">
       <Card className="max-w-2xl mx-auto">
         <CardHeader>
           <CardTitle>Check Report Status</CardTitle>
@@ -40,7 +40,13 @@ export default function CheckStatus() {
           <form onSubmit={onSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="trackingId">Tracking ID</Label>
-              <Input id="trackingId" name="trackingId" placeholder="Enter your tracking ID" required />
+              <Input
+                id="trackingId"
+                name="trackingId"
+                placeholder="Enter your tracking ID"
+                className="w-full"
+                required
+              />
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>
@@ -61,7 +67,7 @@ export default function CheckStatus() {
                 <div className="mt-2">
                   <div className="font-medium">Category: {report.category}</div>
                   <div className="font-medium">Location: {report.location}</div>
-                  <div className="mt-2">{report.description}</div>
+                  <div className="mt-2 break-words">{report.description}</div>
                 </div>
               </div>
 
@@ -71,7 +77,7 @@ export default function CheckStatus() {
                   {report.updates.map((update: any, index: number) => (
                     <div key={index} className="rounded-lg border p-4">
                       <div className="font-medium">Status: {update.status}</div>
-                      <div className="mt-2 text-sm">{update.message}</div>
+                      <div className="mt-2 text-sm break-words">{update.message}</div>
                       <div className="mt-1 text-xs text-muted-foreground">
                         {format(new Date(update.date_added), "PPP")}
                       </div>
